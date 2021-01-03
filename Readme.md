@@ -26,7 +26,7 @@ brew install redis
 ## vue-webrtc
 
 see example inside npm package
-vue create sample
+vue create sample ...
 
 ## simple-peer
 
