@@ -45,10 +45,10 @@ const Room = (props) => {
     const roomID = props.match.params.roomID;
 
     useEffect(() => {
-        socketRef.current = io.connect("/", {
+        socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
             path: "/peerws/socket.io"
           });
-        console.log("connect to " + socketRef)
+        console.log("connect to " + process.env.REACT_APP_WSURL)
         navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: true }).then(stream => {
             userVideo.current.srcObject = stream;
             socketRef.current.emit("join room", roomID);
