@@ -36,6 +36,8 @@ vue create sample ...
 
 <https://www.youtube.com/watch?v=R1sfHPwEH7A>
 
+  "proxy": "http://ubuntu:8000",
+
 ## peerjs
 
 <https://www.youtube.com/watch?v=DvlyzDZDEq4>
