@@ -5,7 +5,7 @@ import Room from "./routes/Room";
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/peer">
       <Switch>
         <Route path="/" exact component={CreateRoom} />
         <Route path="/room/:roomID" component={Room} />
