@@ -38,8 +38,12 @@ vue create sample ...
 
   "proxy": "http://ubuntu:8000",
 
+https://planb.nicecupoftea.org/2020/05/29/zoom-on-a-pi-4-4gb/
+
+
 ## peerjs
 
 <https://www.youtube.com/watch?v=DvlyzDZDEq4>
 
 <https://github.com/WebDevSimplified/Zoom-Clone-With-WebRTC>
+
