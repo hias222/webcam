@@ -32,24 +32,27 @@ const Video = (props) => {
 }
 
 
-const videoConstraints = {
-    height: window.innerHeight / 2,
-    width: window.innerWidth / 2
-};
-
 const Room = (props) => {
     const [peers, setPeers] = useState([]);
     const socketRef = useRef();
     const userVideo = useRef();
     const peersRef = useRef([]);
-    const roomID = props.match.params.roomID;
+    const roomID = 'myroom'
+    const cameraID = props.match.params.cameraID;
 
     useEffect(() => {
         socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
             path: "/peerws/socket.io"
-          });
-        console.log("connect to " + process.env.REACT_APP_WSURL)
-        navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: true }).then(stream => {
+        });
+        console.log("connect to " + process.env.REACT_APP_WSURL + ' with ' + cameraID)
+        navigator.mediaDevices.getUserMedia({
+            video: {
+                deviceId: { exact: cameraID },
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            },
+            audio: false,
+        }).then(stream => {
             userVideo.current.srcObject = stream;
             socketRef.current.emit("join room", roomID);
             socketRef.current.on("all users", users => {
