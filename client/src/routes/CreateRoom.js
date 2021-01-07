@@ -1,5 +1,4 @@
 import React from "react";
-import { v1 as uuid } from "uuid";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -23,7 +22,7 @@ const CreateRoom = (props) => {
     return (
         <Container>
             
-             <button onClick={listDevices}>Devices</button>
+             <button onClick={listDevices}>Choose Devices</button>
              <button onClick={watchDevices}>Watch</button>
 
         </Container>

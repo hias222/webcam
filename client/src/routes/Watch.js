@@ -24,7 +24,7 @@ const Video = (props) => {
         props.peer.on("stream", stream => {
             ref.current.srcObject = stream;
         })
-    }, []);
+    });
 
     return (
         <StyledVideo playsInline autoPlay ref={ref} />
@@ -44,14 +44,15 @@ const Watch = (props) => {
         });
         console.log("connect to " + process.env.REACT_APP_WSURL)
         navigator.mediaDevices.getUserMedia({
-            video: false,
-            audio: true,
+            video: true,
+            audio: false,
         }).then(() => {
             //userVideo.current.srcObject = stream;
             socketRef.current.emit("join room", roomID);
             socketRef.current.on("all users", users => {
                 const peers = [];
                 users.forEach(userID => {
+                    console.log("userid " + userID)
                     const peer = createPeer(userID, socketRef.current.id);
                     peersRef.current.push({
                         peerID: userID,
@@ -62,6 +63,7 @@ const Watch = (props) => {
                 setPeers(peers);
             })
 
+            /*
             socketRef.current.on("user joined", payload => {
                 const peer = addPeer(payload.signal, payload.callerID);
                 peersRef.current.push({
@@ -69,8 +71,9 @@ const Watch = (props) => {
                     peer,
                 })
 
-                setPeers(users => [...users, peer]);
+                //setPeers(users => [...users, peer]);
             });
+            */
 
             socketRef.current.on("receiving returned signal", payload => {
                 const item = peersRef.current.find(p => p.peerID === payload.id);
@@ -80,29 +83,16 @@ const Watch = (props) => {
     }, []);
 
     function createPeer(userToSignal, callerID) {
+        console.log("create init")
         const peer = new Peer({
             initiator: true,
             trickle: false,
         });
 
         peer.on("signal", signal => {
+            console.log("create init - send")
             socketRef.current.emit("sending signal", { userToSignal, callerID, signal })
         })
-
-        return peer;
-    }
-
-    function addPeer(incomingSignal, callerID) {
-        const peer = new Peer({
-            initiator: false,
-            trickle: false,
-        })
-
-        peer.on("signal", signal => {
-            socketRef.current.emit("returning signal", { signal, callerID })
-        })
-
-        peer.signal(incomingSignal);
 
         return peer;
     }

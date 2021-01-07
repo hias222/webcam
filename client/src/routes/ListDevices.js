@@ -3,21 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 
 import { Button, Grid } from "@material-ui/core";
-import styled from "styled-components";
-
-const Container = styled.div`
-    padding: 20px;
-    display: flex;
-    height: 100vh;
-    width: 90%;
-    margin: auto;
-    flex-wrap: wrap;
-`;
-
-const StyledVideo = styled.video`
-    height: 40%;
-    width: 50%;
-`;
 
 
 const videoConstraints = {
@@ -27,13 +12,18 @@ const videoConstraints = {
 
 const ListDevices = (props) => {
     const userVideo = useRef();
-     const [mydevices, setMydevices] = useState([]);
+    const [mydevices, setMydevices] = useState([]);
     const localdevices = [];
 
     const history = useHistory();
 
     function create(cameraID) {
         history.push(`/room/${cameraID}`);
+    }
+
+
+    function serve(cameraID) {
+        history.push(`/serve/${cameraID}`);
     }
 
     useEffect(() => {
@@ -69,7 +59,7 @@ const ListDevices = (props) => {
             .catch(error => {
                 console.log('not found ' + error.toString())
             })
-    }, []);
+    });
 
     return (
         <div>
@@ -77,16 +67,18 @@ const ListDevices = (props) => {
             {mydevices.map((device, index) => {
                 return (
                     <div>
-                        <Grid key={index}>
-                            <Button onClick={() => { create(device.deviceId) }} >Press</Button>
-                            <p key={index}>{device.label}</p>
+                        <Grid container>
+                            <Grid xs={6} key={index}>
+                                <Button onClick={() => { serve(device.deviceId) }} >Play {device.label}</Button>
+                            </Grid>
+                            <Grid xs={6} key={index}>
+                                <Button onClick={() => { create(device.deviceId) }} >Room {device.label}</Button>
+                            </Grid>
                         </Grid>
                     </div>
                 );
             })}
-            <Container>
-                <StyledVideo muted ref={userVideo} autoPlay playsInline />
-            </Container>
+            
         </div>
     );
 };
