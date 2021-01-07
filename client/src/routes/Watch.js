@@ -32,33 +32,27 @@ const Video = (props) => {
 }
 
 
-const Room = (props) => {
+const Watch = (props) => {
     const [peers, setPeers] = useState([]);
     const socketRef = useRef();
-    const userVideo = useRef();
     const peersRef = useRef([]);
     const roomID = 'myroom'
-    const cameraID = props.match.params.cameraID;
 
     useEffect(() => {
         socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
             path: "/peerws/socket.io"
         });
-        console.log("connect to " + process.env.REACT_APP_WSURL + ' with ' + cameraID)
+        console.log("connect to " + process.env.REACT_APP_WSURL)
         navigator.mediaDevices.getUserMedia({
-            video: {
-                deviceId: { exact: cameraID },
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            },
-            audio: false,
-        }).then(stream => {
-            userVideo.current.srcObject = stream;
+            video: false,
+            audio: true,
+        }).then(() => {
+            //userVideo.current.srcObject = stream;
             socketRef.current.emit("join room", roomID);
             socketRef.current.on("all users", users => {
                 const peers = [];
                 users.forEach(userID => {
-                    const peer = createPeer(userID, socketRef.current.id, stream);
+                    const peer = createPeer(userID, socketRef.current.id);
                     peersRef.current.push({
                         peerID: userID,
                         peer,
@@ -69,7 +63,7 @@ const Room = (props) => {
             })
 
             socketRef.current.on("user joined", payload => {
-                const peer = addPeer(payload.signal, payload.callerID, stream);
+                const peer = addPeer(payload.signal, payload.callerID);
                 peersRef.current.push({
                     peerID: payload.callerID,
                     peer,
@@ -85,11 +79,10 @@ const Room = (props) => {
         })
     }, []);
 
-    function createPeer(userToSignal, callerID, stream) {
+    function createPeer(userToSignal, callerID) {
         const peer = new Peer({
             initiator: true,
             trickle: false,
-            stream,
         });
 
         peer.on("signal", signal => {
@@ -99,11 +92,10 @@ const Room = (props) => {
         return peer;
     }
 
-    function addPeer(incomingSignal, callerID, stream) {
+    function addPeer(incomingSignal, callerID) {
         const peer = new Peer({
             initiator: false,
             trickle: false,
-            stream,
         })
 
         peer.on("signal", signal => {
@@ -117,7 +109,6 @@ const Room = (props) => {
 
     return (
         <Container>
-            <StyledVideo muted ref={userVideo} autoPlay playsInline />
             {peers.map((peer, index) => {
                 return (
                     <Video key={index} peer={peer} />
@@ -127,4 +118,4 @@ const Room = (props) => {
     );
 };
 
-export default Room;
+export default Watch;

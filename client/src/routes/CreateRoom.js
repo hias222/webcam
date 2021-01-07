@@ -12,19 +12,19 @@ const Container = styled.div`
 
 const CreateRoom = (props) => {
 
-    function create() {
-        const id = uuid();
-        props.history.push(`/room/${id}`);
-    }
-
     function listDevices() {
         props.history.push(`/devices`);
     }
 
+    function watchDevices() {
+        props.history.push(`/watch`);
+    }
+
     return (
         <Container>
-             <button onClick={create}>Create room</button>
+            
              <button onClick={listDevices}>Devices</button>
+             <button onClick={watchDevices}>Watch</button>
 
         </Container>
        
