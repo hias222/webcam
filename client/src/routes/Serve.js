@@ -56,7 +56,30 @@ const Serve = (props) => {
                 const item = peersRef.current.find(p => p.peerID === payload.id);
                 item.peer.signal(payload.signal);
             });
+        }).catch(error => {
+            console.log("da geht nix " + error)
         })
+
+        return function cleanup() {
+            //cleanup Media
+            console.log("cleanup")
+
+            navigator.mediaDevices.getUserMedia({
+                video: {
+                    deviceId: { exact: cameraID }
+                },
+                audio: false
+            }).then((stream) => {
+                console.log("cleanup " + cameraID)
+                stream.getTracks().forEach(function (track) {
+                    //if (track.readyState == 'live') {
+                    track.stop();
+                    //}
+                });
+            }).catch(error => {
+                console.log("error in cleanup " + error)
+            })
+        }
     });
 
     function addPeer(incomingSignal, callerID, stream) {

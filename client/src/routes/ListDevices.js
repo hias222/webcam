@@ -31,34 +31,45 @@ const ListDevices = (props) => {
             devices.forEach(function (device) {
                 if (device.kind === 'videoinput') {
                     localdevices.push(device)
+                    /*
+                    navigator.mediaDevices.getUserMedia({
+                        video: {
+                            deviceId: { exact: device.deviceId }
+                        },
+                        audio: false
+                    }).then(() => {
+                           console.log("added")
+                    })
+                    */
                 }
-                console.log(device.kind + ": " + device.label +
-                    " id = " + device.deviceId);
+                //console.log(device.kind + ": " + device.label +
+                //  " id = " + device.deviceId);
             });
             setMydevices(localdevices)
         })
 
         /*
-        video: videoConstraints
-        video: { width: 1280, height: 720 }
-        { video: { deviceId: myPreferredCameraDeviceId } }
-        { video: { deviceId: { exact: myExactCameraOrBustDeviceId } } }
+        return function cleanup() {
+            //cleanup Media
+            mydevices.map((device, index) => {
 
-        video: {
-    width: { min: 1280 },
-    height: { min: 720 }
-  }
+                navigator.mediaDevices.getUserMedia({
+                    video: {
+                        deviceId: { exact: device.deviceId }
+                    },
+                    audio: false
+                }).then((stream) => {
+                    console.log("cleanup " + device.deviceId)
+                    stream.getTracks().forEach(function(track) {
+                        if (track.readyState == 'live') {
+                            track.stop();
+                        }
+                    });
+                })
+                console.log("cleanup " + device.deviceId)
+            })
+        }
         */
-
-        navigator.mediaDevices.getUserMedia({
-            video: videoConstraints, audio: false
-        })
-            .then(stream => {
-                userVideo.current.srcObject = stream;
-            })
-            .catch(error => {
-                console.log('not found ' + error.toString())
-            })
     });
 
     return (
@@ -66,19 +77,19 @@ const ListDevices = (props) => {
             <p> device list {mydevices.length} <br></br></p>
             {mydevices.map((device, index) => {
                 return (
-                    <div>
-                        <Grid container>
-                            <Grid xs={6} key={index}>
-                                <Button onClick={() => { serve(device.deviceId) }} >Play {device.label}</Button>
+                    <div key={index + 2000}>
+                        <Grid container key={index + 1000} >
+                            <Grid item xs={6} key={index + 111}>
+                                <Button onClick={() => { serve(device.deviceId) }} >Play {device.index} {device.deviceId}</Button>
                             </Grid>
-                            <Grid xs={6} key={index}>
+                            <Grid item xs={6} key={index}>
                                 <Button onClick={() => { create(device.deviceId) }} >Room {device.label}</Button>
                             </Grid>
                         </Grid>
                     </div>
                 );
             })}
-            
+
         </div>
     );
 };
