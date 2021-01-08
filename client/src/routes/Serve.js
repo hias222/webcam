@@ -62,23 +62,13 @@ const Serve = (props) => {
 
         return function cleanup() {
             //cleanup Media
-            console.log("cleanup")
-
-            navigator.mediaDevices.getUserMedia({
-                video: {
-                    deviceId: { exact: cameraID }
-                },
-                audio: false
-            }).then((stream) => {
+            //cleanup websocket todo
                 console.log("cleanup " + cameraID)
-                stream.getTracks().forEach(function (track) {
+                userVideo.current.srcObject.getTracks().forEach(function (track) {
                     //if (track.readyState == 'live') {
                     track.stop();
                     //}
                 });
-            }).catch(error => {
-                console.log("error in cleanup " + error)
-            })
         }
     });
 
