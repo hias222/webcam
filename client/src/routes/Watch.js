@@ -43,54 +43,61 @@ const Watch = (props) => {
             path: "/peerws/socket.io"
         });
         console.log("connect to " + process.env.REACT_APP_WSURL)
-        navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: false,
-        }).then(() => {
-            //userVideo.current.srcObject = stream;
-            socketRef.current.emit("join room", roomID);
-            socketRef.current.on("all users", users => {
-                const peers = [];
-                users.forEach(userID => {
-                    console.log("userid " + userID)
-                    const peer = createPeer(userID, socketRef.current.id);
-                    peersRef.current.push({
-                        peerID: userID,
-                        peer,
-                    })
-                    peers.push(peer);
-                })
-                setPeers(peers);
-            })
-
-            /*
-            socketRef.current.on("user joined", payload => {
-                const peer = addPeer(payload.signal, payload.callerID);
+        /*
+         navigator.mediaDevices.getUserMedia({
+             video: true,
+             audio: false,
+         }).then(() => {
+             */
+        //userVideo.current.srcObject = stream;
+        socketRef.current.emit("join room", roomID);
+        socketRef.current.on("all users", users => {
+            const peers = [];
+            users.forEach(userID => {
+                console.log("userid " + userID)
+                const peer = createPeer(userID, socketRef.current.id);
                 peersRef.current.push({
-                    peerID: payload.callerID,
+                    peerID: userID,
                     peer,
                 })
-
-                //setPeers(users => [...users, peer]);
-            });
-            */
-
-            socketRef.current.on("receiving returned signal", payload => {
-                const item = peersRef.current.find(p => p.peerID === payload.id);
-                item.peer.signal(payload.signal);
-            });
+                peers.push(peer);
+            })
+            setPeers(peers);
         })
+
+        /*
+        socketRef.current.on("user joined", payload => {
+            const peer = addPeer(payload.signal, payload.callerID);
+            peersRef.current.push({
+                peerID: payload.callerID,
+                peer,
+            })
+
+            //setPeers(users => [...users, peer]);
+        });
+        */
+
+        socketRef.current.on("receiving returned signal", payload => {
+            console.log("receiving signal")
+            const item = peersRef.current.find(p => p.peerID === payload.id);
+            console.log(item.peer.readable)
+            if (item.peer.readable) {
+                item.peer.signal(payload.signal);
+            }
+        });
+        // })
     }, []);
 
     function createPeer(userToSignal, callerID) {
-        console.log("create init")
+        console.log("create Peer")
         const peer = new Peer({
             initiator: true,
             trickle: false,
+            stream: false,
         });
 
         peer.on("signal", signal => {
-            console.log("create init - send")
+            console.log("sending signal")
             socketRef.current.emit("sending signal", { userToSignal, callerID, signal })
         })
 

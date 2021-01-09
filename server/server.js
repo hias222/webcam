@@ -4,11 +4,14 @@ const http = require("http");
 const app = express();
 const server = http.createServer(app);
 const socket = require("socket.io");
-const io = socket(server,{ path: '/peerws/socket.io'});
+const io = socket(server, { path: '/peerws/socket.io' });
 
 const users = {};
 
 const socketToRoom = {};
+
+const type = {};
+const presentor = {};
 
 io.on('connection', socket => {
     socket.on("join room", roomID => {
@@ -20,11 +23,33 @@ io.on('connection', socket => {
             }
             users[roomID].push(socket.id);
         } else {
+            type[roomID] = "multi";
             users[roomID] = [socket.id];
         }
         socketToRoom[socket.id] = roomID;
         const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
 
+        if (type[roomID] === 'serve'){
+            console.log("serve mode " + type[roomID] + " presentor ID " + presentor[roomID] + " user id " + socket.id)
+            console.log("userinthisrooms " + usersInThisRoom);
+            socket.emit("all users", presentor[roomID]);
+        } else {
+            console.log("multi mode " + type[roomID])
+            socket.emit("all users", usersInThisRoom);
+        }
+
+    });
+
+    socket.on("create serve", roomID => {
+        // create new empty room
+        type[roomID] = "serve";
+        users[roomID] = [socket.id];
+        presentor[roomID] = [socket.id];
+
+        socketToRoom[socket.id] = roomID;
+        const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
+
+        console.log("create serve ", users);
         socket.emit("all users", usersInThisRoom);
     });
 

@@ -38,17 +38,15 @@ const Serve = (props) => {
             audio: false,
         }).then(stream => {
             userVideo.current.srcObject = stream;
-            socketRef.current.emit("join room", roomID);
+            socketRef.current.emit("create serve", roomID);
 
             socketRef.current.on("user joined", payload => {
                 console.log("user joined " + payload.callerID)
                 const peer = addPeer(payload.signal, payload.callerID, stream);
-                console.log("user joined " + payload.callerID)
                 peersRef.current.push({
                     peerID: payload.callerID,
                     peer,
                 })
-
                 //setPeers(users => [...users, peer]);
             });
 
@@ -63,12 +61,12 @@ const Serve = (props) => {
         return function cleanup() {
             //cleanup Media
             //cleanup websocket todo
-                console.log("cleanup " + cameraID)
-                userVideo.current.srcObject.getTracks().forEach(function (track) {
-                    //if (track.readyState == 'live') {
-                    track.stop();
-                    //}
-                });
+            console.log("cleanup " + cameraID)
+            userVideo.current.srcObject.getTracks().forEach(function (track) {
+                //if (track.readyState == 'live') {
+                track.stop();
+                //}
+            });
         }
     });
 
@@ -81,6 +79,7 @@ const Serve = (props) => {
         })
 
         peer.on("signal", signal => {
+            console.log("returning signal " + callerID)
             socketRef.current.emit("returning signal", { signal, callerID })
         })
 
