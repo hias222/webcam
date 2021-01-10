@@ -35,7 +35,7 @@ const Serve = (props) => {
                 width: { ideal: 1280 },
                 height: { ideal: 720 }
             },
-            audio: false,
+            audio: true,
         }).then(stream => {
             userVideo.current.srcObject = stream;
             socketRef.current.emit("create serve", roomID);
