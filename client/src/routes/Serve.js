@@ -22,20 +22,33 @@ const Serve = (props) => {
     const userVideo = useRef();
     const peersRef = useRef([]);
     const roomID = 'myroom'
-    const cameraID = props.match.params.cameraID;
+    const videoID = props.match.params.videoID;
+    const audioID = props.match.params.audioID;
+
 
     useEffect(() => {
         socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
             path: "/peerws/socket.io"
         });
-        console.log("connect to " + process.env.REACT_APP_WSURL + ' with ' + cameraID)
+        console.log("connect to " + process.env.REACT_APP_WSURL + ' video ' + videoID + ' audio ' + audioID)
+
+        if (videoID !== 'false'){
+            var videostring = {deviceId: { exact: videoID },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }}
+        } else {
+            var videostring = false
+        }
+
+        if (audioID !== 'false'){
+            var audiostring = {deviceId: { exact: audioID }}
+        } else {
+            var audiostring = false
+        }
+
         navigator.mediaDevices.getUserMedia({
-            video: {
-                deviceId: { exact: cameraID },
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            },
-            audio: true,
+            video: videostring,
+            audio: audiostring,
         }).then(stream => {
             userVideo.current.srcObject = stream;
             socketRef.current.emit("create serve", roomID);
@@ -61,14 +74,14 @@ const Serve = (props) => {
         return function cleanup() {
             //cleanup Media
             //cleanup websocket todo
-            console.log("cleanup " + cameraID)
+            console.log("cleanup " + videoID)
             userVideo.current.srcObject.getTracks().forEach(function (track) {
                 //if (track.readyState == 'live') {
                 track.stop();
                 //}
             });
         }
-    });
+    },[]);
 
     function addPeer(incomingSignal, callerID, stream) {
         console.log("add Peer " + callerID)

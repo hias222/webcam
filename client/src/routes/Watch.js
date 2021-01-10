@@ -39,13 +39,7 @@ const Watch = (props) => {
             path: "/peerws/socket.io"
         });
         console.log("connect to " + process.env.REACT_APP_WSURL)
-        /*
-         navigator.mediaDevices.getUserMedia({
-             video: true,
-             audio: false,
-         }).then(() => {
-             */
-        //userVideo.current.srcObject = stream;
+
         socketRef.current.emit("join room", roomID);
         socketRef.current.on("all users", users => {
             const peers = [];
@@ -60,18 +54,6 @@ const Watch = (props) => {
             })
             setPeers(peers);
         })
-
-        /*
-        socketRef.current.on("user joined", payload => {
-            const peer = addPeer(payload.signal, payload.callerID);
-            peersRef.current.push({
-                peerID: payload.callerID,
-                peer,
-            })
-
-            //setPeers(users => [...users, peer]);
-        });
-        */
 
         socketRef.current.on("receiving returned signal", payload => {
             console.log("receiving signal")

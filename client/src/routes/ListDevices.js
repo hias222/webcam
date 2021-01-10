@@ -1,94 +1,134 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useHistory } from "react-router-dom";
-
 import { Button, Grid } from "@material-ui/core";
 
+import { makeStyles } from '@material-ui/core/styles';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
-const videoConstraints = {
-    height: window.innerHeight / 2,
-    width: window.innerWidth / 2
-};
+const useStyles = makeStyles((theme) => ({
+    formControl: {
+        margin: theme.spacing(1),
+        minWidth: 120,
+    },
+    selectEmpty: {
+        marginTop: theme.spacing(2),
+    },
+}));
+
+
 
 const ListDevices = (props) => {
-    const userVideo = useRef();
-    const [mydevices, setMydevices] = useState([]);
-    const localdevices = [];
+    const classes = useStyles();
+    const [printvideodevices, setVideodevices] = useState([
+        { label: "Loading ...", deviceId: "" }
+    ]);
+    const [loading, setLoading] = React.useState(true);
+
+    const [camaraConfig, setCameraConfig] = React.useState();
+
+    const [printaudiodevices, setAudiodevices] = useState([]);
+    const videodevices = [];
+    const audiodevices = [];
 
     const history = useHistory();
 
     function create(cameraID) {
-        history.push(`/room/${cameraID}`);
+        history.push(`/room/${camaraConfig.video}`);
     }
 
-
-    function serve(cameraID) {
-        history.push(`/serve/${cameraID}`);
+    function serve() {
+        history.push(`/serve/${camaraConfig.video}/${camaraConfig.audio}`);
     }
+
+    const handleChangeVideo = (event) => {
+        const name = event.target.value;
+        var temp = { ...camaraConfig, 'video': name }
+        setCameraConfig(temp)
+        console.log(temp)
+    };
+
+    const handleChangeAudio = (event) => {
+        const name = event.target.value;
+        var temp = { ...camaraConfig, 'audio': name }
+        setCameraConfig(temp)
+        console.log(temp)
+    };
 
     useEffect(() => {
         navigator.mediaDevices.enumerateDevices().then(devices => {
-            devices.forEach(function (device) {
+            var tmpDef = { 'video': false, "audio": false }
+            setCameraConfig(tmpDef);
+
+            devices.forEach(function (device, index) {
                 if (device.kind === 'videoinput') {
-                    localdevices.push(device)
-                    /*
-                    navigator.mediaDevices.getUserMedia({
-                        video: {
-                            deviceId: { exact: device.deviceId }
-                        },
-                        audio: false
-                    }).then(() => {
-                           console.log("added")
-                    })
-                    */
+                    videodevices.push(device)
+                }
+
+                if (device.kind === 'audioinput') {
+                    audiodevices.push(device)
                 }
                 //console.log(device.kind + ": " + device.label +
                 //  " id = " + device.deviceId);
             });
-            setMydevices(localdevices)
+            setVideodevices(videodevices)
+            setAudiodevices(audiodevices)
+            setLoading(false);
         })
 
-        /*
-        return function cleanup() {
-            //cleanup Media
-            mydevices.map((device, index) => {
 
-                navigator.mediaDevices.getUserMedia({
-                    video: {
-                        deviceId: { exact: device.deviceId }
-                    },
-                    audio: false
-                }).then((stream) => {
-                    console.log("cleanup " + device.deviceId)
-                    stream.getTracks().forEach(function(track) {
-                        if (track.readyState == 'live') {
-                            track.stop();
-                        }
-                    });
-                })
-                console.log("cleanup " + device.deviceId)
-            })
-        }
-        */
-    });
+    }, []);
 
     return (
         <div>
-            <p> device list {mydevices.length} <br></br></p>
-            {mydevices.map((device, index) => {
-                return (
-                    <div key={index + 2000}>
-                        <Grid container key={index + 1000} >
-                            <Grid item xs={6} key={index + 111}>
-                                <Button onClick={() => { serve(device.deviceId) }} >Play {device.index} {device.deviceId}</Button>
-                            </Grid>
-                            <Grid item xs={6} key={index}>
-                                <Button onClick={() => { create(device.deviceId) }} >Room {device.label}</Button>
-                            </Grid>
-                        </Grid>
-                    </div>
-                );
-            })}
+
+            <Grid container key={6000} >
+                <Grid item xs={12}>
+
+                    <p  >Devices</p>
+                </Grid>
+
+                <Grid item xs={12}>
+
+                    <FormControl className={classes.formControl}>
+                        <InputLabel htmlFor="video-native-simple">Video</InputLabel>
+                        <Select enabled={loading}
+                            onChange={handleChangeVideo}
+                        >
+                            {printvideodevices.map((device, index) => {
+                                return (
+                                    <MenuItem key={index + 5100} value={device.deviceId}>{device.label}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl className={classes.formControl}>
+                        <InputLabel htmlFor="audio-native-simple">Audio</InputLabel>
+                        <Select enabled={loading}
+                            onChange={handleChangeAudio}
+                        >
+                            {printaudiodevices.map((device, index) => {
+                                return (
+                                    <MenuItem key={index + 5100} value={device.deviceId}>{device.label}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </FormControl>
+
+                </Grid>
+
+                <Grid item xs={6}>
+                    <Button onClick={() => { serve() }} >Play</Button>
+                </Grid>
+
+                <Grid item xs={6} key={6001}>
+                    <Button onClick={() => { create() }} >Room</Button>
+                </Grid>
+            </Grid>
 
         </div>
     );

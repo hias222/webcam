@@ -13,7 +13,7 @@ function App() {
         <Route path="/" exact component={CreateRoom} />
         <Route path="/room/:cameraID" component={Room} />
         <Route path="/devices" component={ListDevices} />
-        <Route path="/serve/:cameraID" component={Serve} />
+        <Route path="/serve/:videoID/:audioID" component={Serve} />
         <Route path="/watch" component={Watch} />
       </Switch>
     </BrowserRouter>
