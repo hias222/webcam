@@ -96,6 +96,15 @@ const Serve = (props) => {
             socketRef.current.emit("returning signal", { signal, callerID })
         })
 
+        peer.on('error', (err) => {
+            var tmp = err.message;
+            console.log(tmp)
+        })
+
+        peer.on('close', () => {
+            console.log("close peer " + callerID)
+        })
+
         peer.signal(incomingSignal);
 
         return peer;

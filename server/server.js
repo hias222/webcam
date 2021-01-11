@@ -29,7 +29,7 @@ io.on('connection', socket => {
         socketToRoom[socket.id] = roomID;
         const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
 
-        if (type[roomID] === 'serve'){
+        if (type[roomID] === 'serve') {
             console.log("serve mode " + type[roomID] + " presentor ID " + presentor[roomID] + " user id " + socket.id)
             console.log("userinthisrooms " + usersInThisRoom);
             socket.emit("all users", presentor[roomID]);
