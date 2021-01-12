@@ -22,11 +22,11 @@ const Video = (props) => {
     useEffect(() => {
 
         props.peer.on('connect', () => {
-            console.log("start connect" );
+            console.log("start connect");
         })
 
         props.peer.on("stream", stream => {
-            console.log("start stream" );
+            console.log("start stream");
             ref.current.srcObject = stream;
         })
 
@@ -89,12 +89,18 @@ const Watch = (props) => {
             }
         });
 
+        socketRef.current.on("removePeer", payload => {
+            console.log("removePeer")
+            console.log(payload)
+
+        });
+
         return function cleanup() {
             // delete from websockt!!
 
             var id = socketRef.current.id
 
-            socketRef.current.emit("closing peer", {callerID: id})
+            socketRef.current.emit("closing peer", { callerID: id })
 
             peersRef.current.map((peer) => {
                 console.log("cleanup " + peer.peer)
@@ -145,16 +151,27 @@ const Watch = (props) => {
         }
     }
 
+    function showvideo() {
+
+        var videos = ''
+
+        if (loading) {
+            return  <p>loading video</p>;
+        } else {
+            peers.map((peer, index) => {
+                videos = <Video key={index} peer={peer} />
+            })
+            return videos;
+        }
+    }
+
     return (
         <div>
             {spinner()}
             {message()}
+
             <Container>
-                {peers.map((peer, index) => {
-                    return (
-                        <Video key={index} peer={peer} />
-                    );
-                })}
+                {showvideo()}
             </Container>
 
         </div>
