@@ -32,16 +32,18 @@ const Serve = (props) => {
         });
         console.log("connect to " + process.env.REACT_APP_WSURL + ' video ' + videoID + ' audio ' + audioID)
 
-        if (videoID !== 'false'){
-            var videostring = {deviceId: { exact: videoID },
-            width: { ideal: 1280 },
-            height: { ideal: 720 }}
+        if (videoID !== 'false') {
+            var videostring = {
+                deviceId: { exact: videoID },
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }
         } else {
             var videostring = false
         }
 
-        if (audioID !== 'false'){
-            var audiostring = {deviceId: { exact: audioID }}
+        if (audioID !== 'false') {
+            var audiostring = { deviceId: { exact: audioID } }
         } else {
             var audiostring = false
         }
@@ -71,6 +73,16 @@ const Serve = (props) => {
             console.log("da geht nix " + error)
         })
 
+        socketRef.current.on('removePeer', (payload) => {
+            console.log('GOT DISCONNECTED ')
+            const item = peersRef.current.find(p => p.peerID === payload.callerID);
+            console.log(item)
+            if (item) {
+                item.peer.destroy();
+                console.log("deleted peer ")
+            }
+        })
+
         return function cleanup() {
             //cleanup Media
             //cleanup websocket todo
@@ -81,10 +93,9 @@ const Serve = (props) => {
                 //}
             });
         }
-    },[]);
+    }, []);
 
     function addPeer(incomingSignal, callerID, stream) {
-        console.log("add Peer " + callerID)
         const peer = new Peer({
             initiator: false,
             trickle: false,
@@ -92,7 +103,6 @@ const Serve = (props) => {
         })
 
         peer.on("signal", signal => {
-            console.log("returning signal " + callerID)
             socketRef.current.emit("returning signal", { signal, callerID })
         })
 

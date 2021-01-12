@@ -61,9 +61,15 @@ io.on('connection', socket => {
         io.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
     });
 
+    socket.on("closing peer", payload => {
+        console.log("closing peer " + payload.callerID)
+    });
+
     socket.on('disconnect', () => {
         const roomID = socketToRoom[socket.id];
         let room = users[roomID];
+        console.log("socket disconnect " + socket.id)
+        socket.broadcast.emit('removePeer', { callerID: socket.id })
         if (room) {
             room = room.filter(id => id !== socket.id);
             users[roomID] = room;

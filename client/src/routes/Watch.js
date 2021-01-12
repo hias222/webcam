@@ -4,6 +4,8 @@ import Peer from "simple-peer";
 import styled from "styled-components";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+//https://github.com/Dirvann/webrtc-video-conference-simple-peer/blob/master/src/socketController.js
+
 const Container = styled.div`
     padding: 0px;
     margin: 0px;
@@ -19,7 +21,12 @@ const Video = (props) => {
 
     useEffect(() => {
 
+        props.peer.on('connect', () => {
+            console.log("start connect" );
+        })
+
         props.peer.on("stream", stream => {
+            console.log("start stream" );
             ref.current.srcObject = stream;
         })
 
@@ -34,14 +41,10 @@ const Video = (props) => {
     });
 
     return (
-        <StyledVideo playsInline autoPlay ref={ref}/>
+        <StyledVideo playsInline autoPlay ref={ref} />
     );
 }
 
-const alertUser = (e) => {
-    e.preventDefault();   
-    e.returnValue = "";
-  };
 
 const Watch = (props) => {
     const [peers, setPeers] = useState([]);
@@ -52,6 +55,9 @@ const Watch = (props) => {
     const [loading, setLoading] = React.useState(true);
 
     useEffect(() => {
+
+        //alert('reload!')
+
         socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
             path: "/peerws/socket.io"
         });
@@ -59,12 +65,11 @@ const Watch = (props) => {
 
         socketRef.current.emit("join room", roomID);
 
-        window.addEventListener("beforeunload", alertUser);
-
         socketRef.current.on("all users", users => {
             const peers = [];
             users.forEach(userID => {
-                console.log("userid " + userID)
+                console.log("userid from " + socketRef.current.id + " to " + userID)
+
                 const peer = createPeer(userID, socketRef.current.id);
                 peersRef.current.push({
                     peerID: userID,
@@ -85,7 +90,12 @@ const Watch = (props) => {
         });
 
         return function cleanup() {
-            window.removeEventListener("beforeunload", alertUser);
+            // delete from websockt!!
+
+            var id = socketRef.current.id
+
+            socketRef.current.emit("closing peer", {callerID: id})
+
             peersRef.current.map((peer) => {
                 console.log("cleanup " + peer.peer)
                 peer.peer.destroy();
@@ -103,14 +113,23 @@ const Watch = (props) => {
         });
 
         peer.on("signal", signal => {
-            console.log("sending signal from " +  callerID + " to " + userToSignal)
+            console.log("sending signal from " + callerID + " to " + userToSignal)
             socketRef.current.emit("sending signal", { userToSignal, callerID, signal })
+        })
+
+        peer.on('error', (err) => {
+            var tmp = err.message;
+            console.log("error - " + callerID + " " + tmp)
+        })
+
+        peer.on('close', () => {
+            console.log("close peer " + callerID)
         })
 
         return peer;
     }
 
-    function spinner(){
+    function spinner() {
         if (loading) {
             return <CircularProgress />
         } else {
@@ -118,7 +137,7 @@ const Watch = (props) => {
         }
     }
 
-    function message(){
+    function message() {
         if (loading) {
             return <p>on long running use back in browser</p>
         } else {
@@ -131,12 +150,12 @@ const Watch = (props) => {
             {spinner()}
             {message()}
             <Container>
-            {peers.map((peer, index) => {
-                return (
-                    <Video key={index} peer={peer} />
-                );
-            })}
-        </Container>
+                {peers.map((peer, index) => {
+                    return (
+                        <Video key={index} peer={peer} />
+                    );
+                })}
+            </Container>
 
         </div>
 
