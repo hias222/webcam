@@ -46,7 +46,7 @@ const Video = (props) => {
 }
 
 
-const Watch = (props) => {
+const Viewer = (props) => {
     const [peers, setPeers] = useState([]);
     const socketRef = useRef();
     const peersRef = useRef([]);
@@ -61,33 +61,21 @@ const Watch = (props) => {
         socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
             path: "/peerws/socket.io"
         });
+
         console.log("connect to " + process.env.REACT_APP_WSURL)
 
         socketRef.current.emit("join room", roomID);
 
-        socketRef.current.on("all users", users => {
-            const peers = [];
-            users.forEach(userID => {
-                console.log("userid from " + socketRef.current.id + " to " + userID)
-
-                const peer = createPeer(userID, socketRef.current.id);
-                peersRef.current.push({
-                    peerID: userID,
-                    peer,
-                })
-                peers.push(peer);
+        socketRef.current.on("user joined", payload => {
+            console.log("user joined " + payload.callerID)
+            const peer = addPeer(payload.signal, payload.callerID);
+            peersRef.current.push({
+                peerID: payload.callerID,
+                peer,
             })
-            setPeers(peers);
-        })
-
-        socketRef.current.on("receiving returned signal", payload => {
-            console.log("receiving signal")
-            const item = peersRef.current.find(p => p.peerID === payload.id);
-            if (item.peer.readable) {
-                item.peer.signal(payload.signal);
-                setLoading(false);
-            }
+            setPeers(users => [...users, peer]);
         });
+
 
         socketRef.current.on("removePeer", payload => {
             console.log("removePeer")
@@ -110,27 +98,29 @@ const Watch = (props) => {
         // })
     }, []);
 
-    function createPeer(userToSignal, callerID) {
-        console.log("create Peer")
+    function addPeer(incomingSignal, callerID) {
+        console.log("add peer")
         const peer = new Peer({
-            initiator: true,
+            initiator: false,
             trickle: false,
-            stream: false,
-        });
+        })
 
         peer.on("signal", signal => {
-            console.log("sending signal from " + callerID + " to " + userToSignal)
-            socketRef.current.emit("sending signal", { userToSignal, callerID, signal })
+            setLoading(false);
+            console.log("get signal")
+            socketRef.current.emit("returning signal", { signal, callerID })
         })
 
         peer.on('error', (err) => {
             var tmp = err.message;
-            console.log("error - " + callerID + " " + tmp)
+            console.log(tmp)
         })
 
         peer.on('close', () => {
             console.log("close peer " + callerID)
         })
+
+        peer.signal(incomingSignal);
 
         return peer;
     }
@@ -154,15 +144,11 @@ const Watch = (props) => {
     function showvideo() {
 
         var videos = ''
+        peers.map((peer, index) => {
+            videos = <Video key={index} peer={peer} />
+        })
+        return videos;
 
-        if (loading) {
-            return  <p>loading video</p>;
-        } else {
-            peers.map((peer, index) => {
-                videos = <Video key={index} peer={peer} />
-            })
-            return videos;
-        }
     }
 
     return (
@@ -179,4 +165,4 @@ const Watch = (props) => {
     );
 };
 
-export default Watch;
+export default Viewer;

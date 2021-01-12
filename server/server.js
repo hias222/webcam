@@ -31,8 +31,10 @@ io.on('connection', socket => {
 
         if (type[roomID] === 'serve') {
             console.log("serve mode " + type[roomID] + " presentor ID " + presentor[roomID] + " user id " + socket.id)
-            console.log("userinthisrooms " + usersInThisRoom);
+            console.log("user in this rooms " + usersInThisRoom);
             socket.emit("all users", presentor[roomID]);
+            io.to(presentor[roomID]).emit('new user', { callerID: socket.id });
+
         } else {
             console.log("multi mode " + type[roomID])
             socket.emit("all users", usersInThisRoom);

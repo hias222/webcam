@@ -41,7 +41,7 @@ const ListDevices = (props) => {
     }
 
     function serve() {
-        history.push(`/serve/${camaraConfig.video}/${camaraConfig.audio}`);
+        history.push(`/stream/${camaraConfig.video}/${camaraConfig.audio}`);
     }
 
     const handleChangeVideo = (event) => {

@@ -16,7 +16,7 @@ const CreateRoom = (props) => {
     }
 
     function watchDevices() {
-        props.history.push(`/watch`);
+        props.history.push(`/view`);
     }
 
     return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 import styled from "styled-components";
@@ -17,7 +17,8 @@ const StyledVideo = styled.video`
     width: 100%;
 `;
 
-const Serve = (props) => {
+const Stream = (props) => {
+    const [peers, setPeers] = useState([]);
     const socketRef = useRef();
     const userVideo = useRef();
     const peersRef = useRef([]);
@@ -25,50 +26,40 @@ const Serve = (props) => {
     const videoID = props.match.params.videoID;
     const audioID = props.match.params.audioID;
 
-
     useEffect(() => {
         socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
             path: "/peerws/socket.io"
         });
+
         console.log("connect to " + process.env.REACT_APP_WSURL + ' video ' + videoID + ' audio ' + audioID)
 
-        if (videoID !== 'false') {
-            var videostring = {
-                deviceId: { exact: videoID },
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            }
-        } else {
-            var videostring = false
-        }
-
-        if (audioID !== 'false') {
-            var audiostring = { deviceId: { exact: audioID } }
-        } else {
-            var audiostring = false
-        }
+        var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { ideal: 1280 }, height: { ideal: 720 } } : false
+        var audiostring = (audioID !== 'false') ? { deviceId: { exact: audioID } } : false
 
         navigator.mediaDevices.getUserMedia({
             video: videostring,
             audio: audiostring,
         }).then(stream => {
             userVideo.current.srcObject = stream;
+
             socketRef.current.emit("create serve", roomID);
 
-            socketRef.current.on("user joined", payload => {
-                console.log("user joined " + payload.callerID)
-                const peer = addPeer(payload.signal, payload.callerID, stream);
+            socketRef.current.on("new user", payload => {
+                console.log("new user " + payload.callerID)
+                const peer = createPeer(payload.callerID, socketRef.current.id, stream);
                 peersRef.current.push({
                     peerID: payload.callerID,
                     peer,
                 })
-                //setPeers(users => [...users, peer]);
+                setPeers(users => [...users, peer]);
             });
 
             socketRef.current.on("receiving returned signal", payload => {
+                console.log("receiving returned signal")
                 const item = peersRef.current.find(p => p.peerID === payload.id);
                 item.peer.signal(payload.signal);
             });
+
         }).catch(error => {
             console.log("da geht nix " + error)
         })
@@ -84,8 +75,6 @@ const Serve = (props) => {
         })
 
         return function cleanup() {
-            //cleanup Media
-            //cleanup websocket todo
             console.log("cleanup " + videoID)
             userVideo.current.srcObject.getTracks().forEach(function (track) {
                 //if (track.readyState == 'live') {
@@ -95,27 +84,27 @@ const Serve = (props) => {
         }
     }, []);
 
-    function addPeer(incomingSignal, callerID, stream) {
+    function createPeer(userToSignal, callerID, stream) {
+        console.log("create Peer")
         const peer = new Peer({
-            initiator: false,
+            initiator: true,
             trickle: false,
             stream,
-        })
+        });
 
         peer.on("signal", signal => {
-            socketRef.current.emit("returning signal", { signal, callerID })
+            console.log("sending signal from " + callerID + " to " + userToSignal)
+            socketRef.current.emit("sending signal", { userToSignal, callerID, signal })
         })
 
         peer.on('error', (err) => {
             var tmp = err.message;
-            console.log(tmp)
+            console.log("error - " + callerID + " " + tmp)
         })
 
         peer.on('close', () => {
             console.log("close peer " + callerID)
         })
-
-        peer.signal(incomingSignal);
 
         return peer;
     }
@@ -127,4 +116,4 @@ const Serve = (props) => {
     );
 };
 
-export default Serve;
+export default Stream;
