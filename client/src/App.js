@@ -13,8 +13,8 @@ function App() {
         <Route path="/" exact component={CreateRoom} />
         <Route path="/room/:cameraID" component={Room} />
         <Route path="/devices" component={ListDevices} />
-        <Route path="/stream/:videoID/:audioID" component={Stream} />
-        <Route path="/view" component={Viewer} />
+        <Route path="/stream/:roomID/:videoID/:audioID" component={Stream} />
+        <Route path="/view/:roomID" component={Viewer} />
       </Switch>
     </BrowserRouter>
   );
