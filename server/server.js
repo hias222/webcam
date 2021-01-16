@@ -7,11 +7,22 @@ const socket = require("socket.io");
 const io = socket(server, { path: '/peerws/socket.io' });
 
 const users = {};
+const rooms = [];
 
 const socketToRoom = {};
 
 const type = {};
 const presentor = {};
+
+async function cleanupPresentor(roomID, socketID) {
+    console.log("clean")
+    if (presentor[roomID] == socketID) {
+        if (presentor.hasOwnProperty(roomID)) {
+            delete presentor[roomID]
+            console.log("delete room value " + roomID)
+        }
+    }
+}
 
 io.on('connection', socket => {
     socket.on("join room", roomID => {
@@ -53,6 +64,13 @@ io.on('connection', socket => {
 
         console.log("create serve ", users);
         socket.emit("all users", usersInThisRoom);
+
+        const roomsExist = rooms.filter(id => id === roomID);
+
+        if (roomsExist.length === 0) {
+            rooms.push(roomID)
+            console.log("romm added ", roomID)
+        }
     });
 
     socket.on("sending signal", payload => {
@@ -67,15 +85,37 @@ io.on('connection', socket => {
         console.log("closing peer " + payload.callerID)
     });
 
+    socket.on("query rooms", () => {
+        const existrooms = []
+        console.log("query rooms ")
+
+        for (var key in presentor) {
+            console.log("key " + key );
+            if (presentor.hasOwnProperty(key)) {
+                existrooms.push(key)
+                console.log("add " + key );
+            }
+        }
+
+        io.to(socket.id).emit('list rooms', existrooms);
+    });
+
     socket.on('disconnect', () => {
         const roomID = socketToRoom[socket.id];
-        let room = users[roomID];
-        console.log("socket disconnect " + socket.id)
-        socket.broadcast.emit('removePeer', { callerID: socket.id })
-        if (room) {
-            room = room.filter(id => id !== socket.id);
+
+        if (users[roomID] !== undefined) {
+            const room = users[roomID].filter(id => id !== socket.id);
             users[roomID] = room;
         }
+
+        if (roomID !== undefined) {
+
+            cleanupPresentor(roomID, socket.id)
+
+        }
+        console.log("socket disconnect " + socket.id)
+        socket.broadcast.emit('removePeer', { callerID: socket.id })
+
     });
 
 });

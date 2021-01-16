@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+
+import io from "socket.io-client";
 
 import { useHistory } from "react-router-dom";
 import { Button, Grid } from "@material-ui/core";
@@ -54,6 +56,21 @@ const ListDevices = (props) => {
     const audiodevices = [];
 
     const history = useHistory();
+
+    const socketRef = useRef();
+
+    useEffect(() => {
+        socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
+            path: "/peerws/socket.io"
+        });
+
+        socketRef.current.emit("query rooms");
+
+        socketRef.current.on("list rooms", payload => {
+            console.log(payload)
+        })
+
+    },[])
 
     function create(cameraID) {
         history.push(`/room/${camaraConfig.video}`);
@@ -173,7 +190,7 @@ const ListDevices = (props) => {
                         <Button onClick={() => { create() }} >Room</Button>
                     </Grid>
 
-                    <Grid item xs={8} key={6001}>
+                    <Grid item xs={8} key={6002}>
                         <Paper></Paper>
                     </Grid>
 
@@ -198,7 +215,7 @@ const ListDevices = (props) => {
                         <Button onClick={() => { view() }} >Play</Button>
                     </Grid>
 
-                    <Grid item xs={8} key={6002}>
+                    <Grid item xs={8} key={6003}>
                         <Paper></Paper>
                     </Grid>
 
