@@ -22,7 +22,7 @@ const Stream = (props) => {
     const socketRef = useRef();
     const userVideo = useRef();
     const peersRef = useRef([]);
-    const roomID = 'myroom'
+    const roomID = props.match.params.roomID;
     const videoID = props.match.params.videoID;
     const audioID = props.match.params.audioID;
 

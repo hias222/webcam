@@ -50,7 +50,7 @@ const Viewer = (props) => {
     const [peers, setPeers] = useState([]);
     const socketRef = useRef();
     const peersRef = useRef([]);
-    const roomID = 'myroom'
+    const roomID = props.match.params.roomID;
 
     const [loading, setLoading] = React.useState(true);
 
