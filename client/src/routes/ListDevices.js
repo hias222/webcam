@@ -48,29 +48,16 @@ const ListDevices = (props) => {
         { label: "Loading ...", deviceId: "" }
     ]);
     const [loading, setLoading] = React.useState(true);
-
-    const [camaraConfig, setCameraConfig] = React.useState();
-
     const [printaudiodevices, setAudiodevices] = useState([]);
     const videodevices = [];
     const audiodevices = [];
-
+    const [rooms, setRooms] = useState([]);
     const history = useHistory();
-
     const socketRef = useRef();
 
-    useEffect(() => {
-        socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
-            path: "/peerws/socket.io"
-        });
-
-        socketRef.current.emit("query rooms");
-
-        socketRef.current.on("list rooms", payload => {
-            console.log(payload)
-        })
-
-    },[])
+    // for selects
+    const [camaraConfig, setCameraConfig] = React.useState('');
+    const [viewConfig, setViewConfig] = React.useState('');
 
     function create(cameraID) {
         history.push(`/room/${camaraConfig.video}`);
@@ -105,6 +92,14 @@ const ListDevices = (props) => {
         console.log(temp)
     };
 
+    const handleViewRoom = (event) => {
+        const name = event.target.value;
+        var temp = { ...camaraConfig, 'room': name }
+        setCameraConfig(temp)
+        setViewConfig(name)
+        console.log(temp)
+    };
+
     useEffect(() => {
         navigator.mediaDevices.enumerateDevices().then(devices => {
             var tmpDef = { 'video': false, "audio": false }
@@ -127,6 +122,23 @@ const ListDevices = (props) => {
         })
 
 
+        socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
+            path: "/peerws/socket.io"
+        });
+
+        socketRef.current.emit("query rooms");
+
+        socketRef.current.on("list rooms", rooms => {
+            const queryrooms = [];
+            console.log("list rooms " + rooms)
+            if (rooms) {
+                rooms.forEach(function (room, index) {
+                    queryrooms.push(room)
+                });
+            }
+            var viewrooms = (queryrooms === undefined) ? ['empty'] : queryrooms;
+            setRooms(viewrooms)
+        })
     }, []);
 
     return (
@@ -134,15 +146,15 @@ const ListDevices = (props) => {
             <Paper className={classes.paper2}>
                 <Grid container spacing={2} key={6000} >
                     <Grid item xs={12}>
-                        <Paper className={classes.paper}>Stream Camera </Paper>
+                        <Paper className={classes.paper}>Stream Camera - Chack Access tom camera and mic devices in browser </Paper>
                     </Grid>
 
                     <Grid item xs={2}>
                         <FormControl className={classes.formControl1}>
                             <InputLabel htmlFor="room-native-simple">Camera</InputLabel>
-
                             <Select enabled={loading}
                                 onChange={handleChangeRoom}
+                                displayEmpty
                             >
                                 <MenuItem key={5201} value={'cam1'}>cam1</MenuItem>
                                 <MenuItem key={5202} value={'cam2'}>cam2</MenuItem>
@@ -155,6 +167,7 @@ const ListDevices = (props) => {
                             <InputLabel htmlFor="video-native-simple">Video</InputLabel>
                             <Select enabled={loading}
                                 onChange={handleChangeVideo}
+                                displayEmpty
                             >
                                 {printvideodevices.map((device, index) => {
                                     return (
@@ -170,6 +183,7 @@ const ListDevices = (props) => {
                             <InputLabel htmlFor="audio-native-simple">Audio</InputLabel>
                             <Select enabled={loading}
                                 onChange={handleChangeAudio}
+                                displayEmpty
                             >
                                 {printaudiodevices.map((device, index) => {
                                     return (
@@ -203,10 +217,17 @@ const ListDevices = (props) => {
                             <InputLabel htmlFor="room-native-simple">Camera</InputLabel>
 
                             <Select enabled={loading}
-                                onChange={handleChangeRoom}
+                                labelId="room-native-simple"
+                                id="room-native-simple"
+                                displayEmpty
+                                value={viewConfig}
+                                onChange={handleViewRoom}
                             >
-                                <MenuItem key={5201} value={'cam1'}>cam1</MenuItem>
-                                <MenuItem key={5202} value={'cam2'}>cam2</MenuItem>
+                                {rooms.map((room, index) => {
+                                    return (
+                                        <MenuItem key={index + 4200} value={room}>{room}</MenuItem>
+                                    );
+                                })}
                             </Select>
                         </FormControl>
                     </Grid>

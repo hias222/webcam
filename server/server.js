@@ -24,6 +24,19 @@ async function cleanupPresentor(roomID, socketID) {
     }
 }
 
+async function readRooms(presentor, callback){
+    const existrooms = []
+        //console.log("query rooms ")
+        for (var key in presentor) {
+            console.log("key " + key );
+            if (presentor.hasOwnProperty(key)) {
+                existrooms.push(key)
+               // console.log("add " + key );
+            }
+        }
+    callback(existrooms);
+}
+
 io.on('connection', socket => {
     socket.on("join room", roomID => {
         if (users[roomID]) {
@@ -69,8 +82,15 @@ io.on('connection', socket => {
 
         if (roomsExist.length === 0) {
             rooms.push(roomID)
-            console.log("romm added ", roomID)
+            //console.log("romm added ", roomID)
         }
+
+        readRooms(presentor, activeRooms => {
+            console.log("send")
+            console.log(activeRooms)
+            socket.emit('list rooms', activeRooms);
+        })
+
     });
 
     socket.on("sending signal", payload => {
@@ -86,18 +106,9 @@ io.on('connection', socket => {
     });
 
     socket.on("query rooms", () => {
-        const existrooms = []
-        console.log("query rooms ")
-
-        for (var key in presentor) {
-            console.log("key " + key );
-            if (presentor.hasOwnProperty(key)) {
-                existrooms.push(key)
-                console.log("add " + key );
-            }
-        }
-
-        io.to(socket.id).emit('list rooms', existrooms);
+        readRooms(presentor, activeRooms => {
+            io.to(socket.id).emit('list rooms', activeRooms);
+        })
     });
 
     socket.on('disconnect', () => {
@@ -109,9 +120,7 @@ io.on('connection', socket => {
         }
 
         if (roomID !== undefined) {
-
             cleanupPresentor(roomID, socket.id)
-
         }
         console.log("socket disconnect " + socket.id)
         socket.broadcast.emit('removePeer', { callerID: socket.id })
