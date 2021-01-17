@@ -56,45 +56,49 @@ const ListDevices = (props) => {
     const socketRef = useRef();
 
     // for selects
-    const [camaraConfig, setCameraConfig] = React.useState('');
+    const [cameraConfig, setCameraConfig] = React.useState({ 'video': '', "audio": '', "room": '' });
     const [viewConfig, setViewConfig] = React.useState('');
 
     function create(cameraID) {
-        history.push(`/room/${camaraConfig.video}`);
+        history.push(`/room/${cameraConfig.video}`);
     }
 
     function serve() {
-        history.push(`/stream/${camaraConfig.room}/${camaraConfig.video}/${camaraConfig.audio}`);
+        if (cameraConfig.video === 'false') {
+            alert("choose a video device")
+        } else {
+            history.push(`/stream/${cameraConfig.room}/${cameraConfig.video}/${cameraConfig.audio}`);
+        }
     }
 
     function view() {
-        history.push(`/view/${camaraConfig.room}`);
+        history.push(`/view/${cameraConfig.room}`);
     }
 
     const handleChangeVideo = (event) => {
         const name = event.target.value;
-        var temp = { ...camaraConfig, 'video': name }
+        var temp = { ...cameraConfig, 'video': name }
         setCameraConfig(temp)
         console.log(temp)
     };
 
     const handleChangeAudio = (event) => {
         const name = event.target.value;
-        var temp = { ...camaraConfig, 'audio': name }
+        var temp = { ...cameraConfig, 'audio': name }
         setCameraConfig(temp)
         console.log(temp)
     };
 
     const handleChangeRoom = (event) => {
         const name = event.target.value;
-        var temp = { ...camaraConfig, 'room': name }
+        var temp = { ...cameraConfig, 'room': name }
         setCameraConfig(temp)
         console.log(temp)
     };
 
     const handleViewRoom = (event) => {
         const name = event.target.value;
-        var temp = { ...camaraConfig, 'room': name }
+        var temp = { ...cameraConfig, 'room': name }
         setCameraConfig(temp)
         setViewConfig(name)
         console.log(temp)
@@ -102,7 +106,7 @@ const ListDevices = (props) => {
 
     useEffect(() => {
         navigator.mediaDevices.enumerateDevices().then(devices => {
-            var tmpDef = { 'video': false, "audio": false }
+            var tmpDef = { 'video': 'false', "audio": 'false', "room": 'cam1' }
             setCameraConfig(tmpDef);
 
             devices.forEach(function (device, index) {
@@ -113,8 +117,6 @@ const ListDevices = (props) => {
                 if (device.kind === 'audioinput') {
                     audiodevices.push(device)
                 }
-                //console.log(device.kind + ": " + device.label +
-                //  " id = " + device.deviceId);
             });
             setVideodevices(videodevices)
             setAudiodevices(audiodevices)
@@ -127,6 +129,10 @@ const ListDevices = (props) => {
         });
 
         socketRef.current.emit("query rooms");
+
+        socketRef.current.on("all users", () => {
+            console.log("receive all users")
+        })
 
         socketRef.current.on("list rooms", rooms => {
             const queryrooms = [];
@@ -151,13 +157,16 @@ const ListDevices = (props) => {
 
                     <Grid item xs={2}>
                         <FormControl className={classes.formControl1}>
-                            <InputLabel htmlFor="room-native-simple">Camera</InputLabel>
+                            <InputLabel htmlFor="room-native-simple">Stream</InputLabel>
                             <Select enabled={loading}
+                                value={cameraConfig.room}
                                 onChange={handleChangeRoom}
                                 displayEmpty
                             >
                                 <MenuItem key={5201} value={'cam1'}>cam1</MenuItem>
                                 <MenuItem key={5202} value={'cam2'}>cam2</MenuItem>
+                                <MenuItem key={5202} value={'cam3'}>cam3</MenuItem>
+                                <MenuItem key={5202} value={'cam4'}>cam4</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
@@ -167,8 +176,12 @@ const ListDevices = (props) => {
                             <InputLabel htmlFor="video-native-simple">Video</InputLabel>
                             <Select enabled={loading}
                                 onChange={handleChangeVideo}
+                                value={cameraConfig.video}
                                 displayEmpty
                             >
+                                <MenuItem value="false">
+                                    <em>None</em>
+                                </MenuItem>
                                 {printvideodevices.map((device, index) => {
                                     return (
                                         <MenuItem key={index + 5100} value={device.deviceId}>{device.label}</MenuItem>
@@ -183,8 +196,12 @@ const ListDevices = (props) => {
                             <InputLabel htmlFor="audio-native-simple">Audio</InputLabel>
                             <Select enabled={loading}
                                 onChange={handleChangeAudio}
+                                value={cameraConfig.audio}
                                 displayEmpty
                             >
+                                <MenuItem value="false">
+                                    <em>None</em>
+                                </MenuItem>
                                 {printaudiodevices.map((device, index) => {
                                     return (
                                         <MenuItem key={index + 5100} value={device.deviceId}>{device.label}</MenuItem>

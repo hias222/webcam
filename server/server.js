@@ -28,7 +28,7 @@ async function readRooms(presentor, callback){
     const existrooms = []
         //console.log("query rooms ")
         for (var key in presentor) {
-            console.log("key " + key );
+            //console.log("key " + key );
             if (presentor.hasOwnProperty(key)) {
                 existrooms.push(key)
                // console.log("add " + key );
@@ -76,7 +76,6 @@ io.on('connection', socket => {
         const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
 
         console.log("create serve ", users);
-        socket.emit("all users", usersInThisRoom);
 
         const roomsExist = rooms.filter(id => id === roomID);
 
@@ -85,10 +84,10 @@ io.on('connection', socket => {
             //console.log("romm added ", roomID)
         }
 
+        socket.emit('list rooms')
+
         readRooms(presentor, activeRooms => {
-            console.log("send")
-            console.log(activeRooms)
-            socket.emit('list rooms', activeRooms);
+            io.sockets.emit('list rooms', activeRooms);
         })
 
     });
