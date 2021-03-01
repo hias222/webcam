@@ -142,20 +142,17 @@ const Viewer = (props) => {
     }
 
     function showvideo() {
-
         var videos = ''
         peers.map((peer, index) => {
             videos = <Video key={index} peer={peer} />
         })
         return videos;
-
     }
 
     return (
         <div>
             {spinner()}
             {message()}
-
             <Container>
                 {showvideo()}
             </Container>
