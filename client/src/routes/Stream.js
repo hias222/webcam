@@ -4,17 +4,13 @@ import Peer from "simple-peer";
 import styled from "styled-components";
 
 const Container = styled.div`
-    padding: 20px;
-    display: flex;
-    height: 100vh;
-    width: 90%;
-    margin: auto;
-    flex-wrap: wrap;
+padding: 0px;
+margin: 0px;
 `;
 
 const StyledVideo = styled.video`
-    height: 100%;
-    width: 100%;
+height: 100%;
+width: 1280px;
 `;
 
 const Stream = (props) => {
@@ -25,15 +21,34 @@ const Stream = (props) => {
     const roomID = props.match.params.roomID;
     const videoID = props.match.params.videoID;
     const audioID = props.match.params.audioID;
+    const resolutionID = props.match.params.resolutionID;
 
     useEffect(() => {
         socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
             path: "/peerws/socket.io"
         });
 
-        console.log("connect to " + process.env.REACT_APP_WSURL + ' video ' + videoID + ' audio ' + audioID)
+        console.log("connect to " + process.env.REACT_APP_WSURL + ' video ' + videoID + ' audio ' + audioID + ' resolution ' + resolutionID)
+  
+        switch (resolutionID) {
+            case '720':
+                console.log('720p')
+                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { min: 1280 }, height: { min: 720 } } : false
+                break;
+            case '1080':
+                console.log('1080p')
+                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { exact: 1920 }, height: { exact: 1080 } } : false
+                break;
+            case '575':
+                console.log('575p')
+                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { min: 1024 }, height: { min: 576 } } : false
+                break;
+            default:
+                console.log('resolution default')
+                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { ideal: 1280 }, height: { ideal: 720 } } : false
+                break;
+        }
 
-        var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { ideal: 1280 }, height: { ideal: 720 } } : false
         var audiostring = (audioID !== 'false') ? { deviceId: { exact: audioID } } : false
 
         navigator.mediaDevices.getUserMedia({
@@ -51,7 +66,7 @@ const Stream = (props) => {
                     peerID: payload.callerID,
                     peer,
                 })
-               // setPeers(users => [...users, peer]);
+                // setPeers(users => [...users, peer]);
             });
 
             socketRef.current.on("receiving returned signal", payload => {

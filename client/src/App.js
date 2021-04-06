@@ -9,7 +9,7 @@ function App() {
     <BrowserRouter basename="/peer">
       <Switch>
         <Route path="/" exact component={ListDevices} />
-        <Route path="/stream/:roomID/:videoID/:audioID" component={Stream} />
+        <Route path="/stream/:roomID/:videoID/:audioID/:resolutionID" component={Stream} />
         <Route path="/view/:roomID" component={Viewer} />
       </Switch>
     </BrowserRouter>

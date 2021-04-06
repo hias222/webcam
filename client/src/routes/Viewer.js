@@ -169,6 +169,7 @@ const Viewer = (props) => {
         console.log("showvideo")
         var videos = ''
         peers.map((peer, index) => {
+            console.log(peer)
             videos = <Video key={index} peer={peer} />
         })
         return videos;

@@ -56,7 +56,7 @@ const ListDevices = (props) => {
     const socketRef = useRef();
 
     // for selects
-    const [cameraConfig, setCameraConfig] = React.useState({ 'video': '', "audio": '', "room": '' });
+    const [cameraConfig, setCameraConfig] = React.useState({ 'video': '', "audio": '', "room": '', "resolution": '720' });
     const [viewConfig, setViewConfig] = React.useState('');
 
     function create(cameraID) {
@@ -67,7 +67,7 @@ const ListDevices = (props) => {
         if (cameraConfig.video === 'false') {
             alert("choose a video device")
         } else {
-            history.push(`/stream/${cameraConfig.room}/${cameraConfig.video}/${cameraConfig.audio}`);
+            history.push(`/stream/${cameraConfig.room}/${cameraConfig.video}/${cameraConfig.audio}/${cameraConfig.resolution}`);
         }
     }
 
@@ -78,6 +78,13 @@ const ListDevices = (props) => {
     const handleChangeVideo = (event) => {
         const name = event.target.value;
         var temp = { ...cameraConfig, 'video': name }
+        setCameraConfig(temp)
+        console.log(temp)
+    };
+
+    const handleChangeResolution = (event) => {
+        const name = event.target.value;
+        var temp = { ...cameraConfig, 'resolution': name }
         setCameraConfig(temp)
         console.log(temp)
     };
@@ -147,7 +154,7 @@ const ListDevices = (props) => {
         })
 
         return function cleanup() {
-            console.log("cleanup todo " )
+            console.log("cleanup todo ")
         }
 
     }, []);
@@ -170,8 +177,24 @@ const ListDevices = (props) => {
                             >
                                 <MenuItem key={5201} value={'cam1'}>cam1</MenuItem>
                                 <MenuItem key={5202} value={'cam2'}>cam2</MenuItem>
-                                <MenuItem key={5202} value={'cam3'}>cam3</MenuItem>
-                                <MenuItem key={5202} value={'cam4'}>cam4</MenuItem>
+                                <MenuItem key={5203} value={'cam3'}>cam3</MenuItem>
+                                <MenuItem key={5204} value={'cam4'}>cam4</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+
+                    <Grid item xs={2}>
+                        <FormControl className={classes.formControl1}>
+                            <InputLabel htmlFor="room-native-simple">Resolution</InputLabel>
+                            <Select enabled={loading}
+                                value={cameraConfig.resolution}
+                                onChange={handleChangeResolution}
+                                displayEmpty
+                            >
+                                <MenuItem key={5301} value={'720'}>720p</MenuItem>
+                                <MenuItem key={5302} value={'1080'}>1080p</MenuItem>
+                                <MenuItem key={5303} value={'575'}>575p</MenuItem>
+                                <MenuItem key={5304} value={'0'}>nothing</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>
