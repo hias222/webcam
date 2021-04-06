@@ -36,6 +36,13 @@ Prepare static display. Display is not needed on reboot.
 * sudo /opt/vc/bin/tvservice -d /boot/edid.dat
 * and add hdmi_edid_file=1 to config.txt.
 
+
+### disable wlan sleep mode
+
+iwconfig
+iw wlan0 set power_save off
+--> rc.local
+
 #### set camera mode
 
 ```bash

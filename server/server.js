@@ -24,16 +24,16 @@ async function cleanupPresentor(roomID, socketID) {
     }
 }
 
-async function readRooms(presentor, callback){
+async function readRooms(presentor, callback) {
     const existrooms = []
-        //console.log("query rooms ")
-        for (var key in presentor) {
-            //console.log("key " + key );
-            if (presentor.hasOwnProperty(key)) {
-                existrooms.push(key)
-               // console.log("add " + key );
-            }
+    //console.log("query rooms ")
+    for (var key in presentor) {
+        //console.log("key " + key );
+        if (presentor.hasOwnProperty(key)) {
+            existrooms.push(key)
+            // console.log("add " + key );
         }
+    }
     callback(existrooms);
 }
 
@@ -102,6 +102,13 @@ io.on('connection', socket => {
 
     socket.on("closing peer", payload => {
         console.log("closing peer " + payload.callerID)
+    });
+
+    socket.on("keep alive", payload => {
+
+        var s = new Date(payload.date).toLocaleTimeString()
+
+        console.log("keep alive " + payload.callerID + " " + s)
     });
 
     socket.on("query rooms", () => {

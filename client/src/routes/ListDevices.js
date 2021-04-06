@@ -145,6 +145,11 @@ const ListDevices = (props) => {
             var viewrooms = (queryrooms === undefined) ? ['empty'] : queryrooms;
             setRooms(viewrooms)
         })
+
+        return function cleanup() {
+            console.log("cleanup todo " )
+        }
+
     }, []);
 
     return (

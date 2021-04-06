@@ -22,7 +22,7 @@ const Video = (props) => {
     useEffect(() => {
 
         props.peer.on('connect', () => {
-            console.log("start connect");
+            console.log("start video");
         })
 
         props.peer.on("stream", stream => {
@@ -38,7 +38,12 @@ const Video = (props) => {
             console.log("close peer")
         })
 
-    });
+        return function cleanup() {
+            console.log("cleanup in video")
+            props.peer.destroy();
+        }
+
+    }, []);
 
     return (
         <StyledVideo playsInline autoPlay ref={ref} />
@@ -57,6 +62,10 @@ const Viewer = (props) => {
     useEffect(() => {
 
         //alert('reload!')
+
+        const interval = setInterval(() => {
+            sendTicker()
+        }, 30000);
 
         socketRef.current = io.connect(process.env.REACT_APP_WSURL, {
             path: "/peerws/socket.io"
@@ -90,13 +99,28 @@ const Viewer = (props) => {
 
             socketRef.current.emit("closing peer", { callerID: id })
 
-            peersRef.current.map((peer) => {
+            peers.map((peer) => {
                 console.log("cleanup " + peer.peer)
                 peer.peer.destroy();
             })
+
+            setPeers([]);
+
+            clearInterval(interval);
+
+            //peersRef.current.map((peer) => {
+            //    console.log("cleanup " + peer.peer)
+            //    peer.peer.destroy();
+            //})
+
         }
-        // })
     }, []);
+
+    function sendTicker(){
+        var id = socketRef.current.id
+        var date = Date.now()
+        socketRef.current.emit("keep alive", { callerID: id , date: date});
+    }
 
     function addPeer(incomingSignal, callerID) {
         console.log("add peer")
@@ -142,6 +166,7 @@ const Viewer = (props) => {
     }
 
     function showvideo() {
+        console.log("showvideo")
         var videos = ''
         peers.map((peer, index) => {
             videos = <Video key={index} peer={peer} />

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import io from "socket.io-client";
 import Peer from "simple-peer";
 import styled from "styled-components";
@@ -18,7 +18,7 @@ const StyledVideo = styled.video`
 `;
 
 const Stream = (props) => {
-    const [peers, setPeers] = useState([]);
+    //const [peers, setPeers] = useState([]);
     const socketRef = useRef();
     const userVideo = useRef();
     const peersRef = useRef([]);
@@ -51,7 +51,7 @@ const Stream = (props) => {
                     peerID: payload.callerID,
                     peer,
                 })
-                setPeers(users => [...users, peer]);
+               // setPeers(users => [...users, peer]);
             });
 
             socketRef.current.on("receiving returned signal", payload => {
@@ -82,6 +82,7 @@ const Stream = (props) => {
                 //}
             });
         }
+        // eslint-disable-next-line
     }, []);
 
     function createPeer(userToSignal, callerID, stream) {
