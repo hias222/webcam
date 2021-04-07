@@ -10,8 +10,9 @@ margin: 0px;
 
 const StyledVideo = styled.video`
 height: 100%;
-width: 1280px;
 `;
+
+//width: 1280px;
 
 const Stream = (props) => {
     //const [peers, setPeers] = useState([]);
@@ -33,7 +34,7 @@ const Stream = (props) => {
         switch (resolutionID) {
             case '720':
                 console.log('720p')
-                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { min: 1280 }, height: { min: 720 } } : false
+                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { exact: 1280 }, height: { exact: 720 } } : false
                 break;
             case '1080':
                 console.log('1080p')
@@ -41,11 +42,11 @@ const Stream = (props) => {
                 break;
             case '575':
                 console.log('575p')
-                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { min: 1024 }, height: { min: 576 } } : false
+                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { exact: 1024 }, height: { exact: 576 } } : false
                 break;
             default:
                 console.log('resolution default')
-                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { ideal: 1280 }, height: { ideal: 720 } } : false
+                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { min: 1024 }, height: { min: 576 } } : false
                 break;
         }
 

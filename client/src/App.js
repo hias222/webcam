@@ -10,7 +10,7 @@ function App() {
       <Switch>
         <Route path="/" exact component={ListDevices} />
         <Route path="/stream/:roomID/:videoID/:audioID/:resolutionID" component={Stream} />
-        <Route path="/view/:roomID" component={Viewer} />
+        <Route path="/view/:roomID/:resolutionID" component={Viewer} />
       </Switch>
     </BrowserRouter>
   );

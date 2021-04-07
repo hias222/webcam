@@ -72,7 +72,7 @@ const ListDevices = (props) => {
     }
 
     function view() {
-        history.push(`/view/${cameraConfig.room}`);
+        history.push(`/view/${cameraConfig.room}/${cameraConfig.resolution}`);
     }
 
     const handleChangeVideo = (event) => {
@@ -257,7 +257,7 @@ const ListDevices = (props) => {
                         <Paper className={classes.paper}>View Camera </Paper>
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
                         <FormControl className={classes.formControl}>
                             <InputLabel htmlFor="room-native-simple">Camera</InputLabel>
 
@@ -273,6 +273,22 @@ const ListDevices = (props) => {
                                         <MenuItem key={index + 4200} value={room}>{room}</MenuItem>
                                     );
                                 })}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+
+                    <Grid item xs={6}>
+                        <FormControl className={classes.formControl1}>
+                            <InputLabel htmlFor="room-native-simple">Resolution</InputLabel>
+                            <Select enabled={loading}
+                                value={cameraConfig.resolution}
+                                onChange={handleChangeResolution}
+                                displayEmpty
+                            >
+                                <MenuItem key={5501} value={'720'}>720p</MenuItem>
+                                <MenuItem key={5502} value={'1080'}>1080p</MenuItem>
+                                <MenuItem key={5503} value={'575'}>575p</MenuItem>
+                                <MenuItem key={5504} value={'0'}>nothing</MenuItem>
                             </Select>
                         </FormControl>
                     </Grid>

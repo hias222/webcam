@@ -12,14 +12,31 @@ const Container = styled.div`
 `;
 
 const StyledVideo = styled.video`
-    height: 100%;
+    height: 100%; 
+`;
+
+const StyledVideo720 = styled.video`
+    height: 100%; 
     width: 1280px;
 `;
+
+const StyledVideo1080 = styled.video`
+    height: 100%; 
+    width: 1920px;
+`;
+
+const StyledVideo575 = styled.video`
+    height: 100%; 
+    width: 1024px;
+`;
+
 
 const Video = (props) => {
     const ref = useRef();
 
     useEffect(() => {
+
+        console.log("resolution " + props.resolutionID)
 
         props.peer.on('connect', () => {
             console.log("start video");
@@ -45,9 +62,29 @@ const Video = (props) => {
 
     }, []);
 
+    
+    function getdefVideo() {
+        switch (props.resolutionID) {
+            case '720':
+                console.log('720p')
+                return < StyledVideo720 playsInline autoPlay ref={ref} /> 
+            case '1080':
+                console.log('1080p')
+                return < StyledVideo1080 playsInline autoPlay ref={ref} />
+            case '575':
+                console.log('575p')
+                return < StyledVideo575 playsInline autoPlay ref={ref} /> 
+            default:
+                console.log('resolution default')
+                return < StyledVideo playsInline autoPlay ref={ref} />
+        }
+    }
+
     return (
-        <StyledVideo playsInline autoPlay ref={ref} />
+        getdefVideo()
+        //<StyledVideo playsInline autoPlay ref={ref} />
     );
+
 }
 
 
@@ -56,11 +93,13 @@ const Viewer = (props) => {
     const socketRef = useRef();
     const peersRef = useRef([]);
     const roomID = props.match.params.roomID;
+    const resolutionID = props.match.params.resolutionID;
 
     const [loading, setLoading] = React.useState(true);
 
     useEffect(() => {
 
+        console.log(roomID + " - " + resolutionID)
         //alert('reload!')
 
         const interval = setInterval(() => {
@@ -116,10 +155,10 @@ const Viewer = (props) => {
         }
     }, []);
 
-    function sendTicker(){
+    function sendTicker() {
         var id = socketRef.current.id
         var date = Date.now()
-        socketRef.current.emit("keep alive", { callerID: id , date: date});
+        socketRef.current.emit("keep alive", { callerID: id, date: date });
     }
 
     function addPeer(incomingSignal, callerID) {
@@ -169,8 +208,8 @@ const Viewer = (props) => {
         console.log("showvideo")
         var videos = ''
         peers.map((peer, index) => {
-            console.log(peer)
-            videos = <Video key={index} peer={peer} />
+            //console.log(peer)
+            videos = <Video key={index} peer={peer} resolutionID={resolutionID} />
         })
         return videos;
     }
