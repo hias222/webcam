@@ -46,7 +46,7 @@ const Stream = (props) => {
                 break;
             default:
                 console.log('resolution default')
-                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { min: 1024 }, height: { min: 576 } } : false
+                var videostring = (videoID !== 'false') ? { deviceId: { exact: videoID }, width: { ideal: 1024 }, height: { ideal: 576 } } : false
                 break;
         }
 
@@ -105,6 +105,8 @@ const Stream = (props) => {
         console.log("create Peer")
         const peer = new Peer({
             initiator: true,
+            config: {  iceServers: [] },
+            wrtc: RTCPeerConnection,
             trickle: false,
             stream,
         });

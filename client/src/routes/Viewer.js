@@ -165,7 +165,8 @@ const Viewer = (props) => {
         console.log("add peer")
         const peer = new Peer({
             initiator: false,
-            trickle: false,
+            config: {  iceServers: [] },
+            //trickle: false,
         })
 
         peer.on("signal", signal => {
