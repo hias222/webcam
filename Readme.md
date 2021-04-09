@@ -18,6 +18,11 @@ ToDos:
 
 ## Install
 
+## Create Release
+
+login to gh  
+run scripts/createReleaseNumber.sh 0.1.0
+
 ## use webRTC with simple-peer
 
 * <https://www.npmjs.com/package/simple-peer#in-node>

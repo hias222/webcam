@@ -77,7 +77,8 @@ const Stream = (props) => {
             });
 
         }).catch(error => {
-            console.log("da geht nix " + error)
+            console.log("get media device " + error)
+            console.log(videostring)
         })
 
         socketRef.current.on('removePeer', (payload) => {
