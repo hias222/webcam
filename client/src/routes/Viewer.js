@@ -182,23 +182,23 @@ const Viewer = (props) => {
 
         return peer;
     }
-    
-        function spinner() {
-            if (loading) {
-                return <CircularProgress />
-            } else {
-                return
-            }
+
+    function spinner() {
+        if (loading) {
+            return <CircularProgress />
+        } else {
+            return
         }
-    
-        function message() {
-            if (loading) {
-                return <p>on long running use back in browser</p>
-            } else {
-                return
-            }
+    }
+
+    function message() {
+        if (loading) {
+            return <p>on long running use back in browser</p>
+        } else {
+            return
         }
-    
+    }
+
     function showvideo() {
         console.log("showvideo ")
         var videos = ''
