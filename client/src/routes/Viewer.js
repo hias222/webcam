@@ -4,6 +4,10 @@ import Peer from "simple-peer";
 import styled from "styled-components";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+import { Redirect } from 'react-router-dom'
+import { red } from "@material-ui/core/colors";
+import { Button } from "@material-ui/core";
+
 //https://github.com/Dirvann/webrtc-video-conference-simple-peer/blob/master/src/socketController.js
 
 const Container = styled.div`
@@ -32,12 +36,10 @@ const StyledVideo575 = styled.video`
 
 
 const Video = (props) => {
-    const ref = useRef(props.peer);
+    const ref = useRef();
 
     useEffect(() => {
-
         // console.log("resolution " + props.resolutionID)
-
         props.peer.on('connect', () => {
             console.log("start video");
         })
@@ -54,6 +56,7 @@ const Video = (props) => {
 
         props.peer.on('close', () => {
             console.log("close peer")
+            props.peer.destroy()
         })
 
         return function cleanup() {
@@ -61,8 +64,7 @@ const Video = (props) => {
             //props.peer.destroy();
         }
 
-    }, []);
-
+    }, [props.peer]);
 
     function getdefVideo() {
         switch (props.resolutionID) {
@@ -92,17 +94,27 @@ const Viewer = (props) => {
     const [peer, setPeer] = useState();
     const socketRef = useRef();
     const peersRef = useRef([]);
-    const roomID = props.match.params.roomID;
-    const resolutionID = props.match.params.resolutionID;
-
-    const ref = useRef();
-
     const [loading, setLoading] = React.useState(true);
+
+    const [showVideo, setVideo] = useState(true)
+
+    const resolutionID = props.match.params.resolutionID;
+    const roomID = props.match.params.roomID;
+
+
 
     useEffect(() => {
 
+        const alertUser = (e) => {
+            socketRef.current.disconnect()
+            setPeer = undefined
+            setLoading(true)
+            setVideo(false)
+        };
+        // reload has no affect
+        window.addEventListener("beforeunload", alertUser);
+
         console.log("start with " + roomID + " - " + resolutionID)
-        //alert('reload!')
 
         const interval = setInterval(() => {
             sendTicker()
@@ -127,23 +139,34 @@ const Viewer = (props) => {
             setPeer(peer);
         });
 
-
         socketRef.current.on("removePeer", payload => {
             console.log("removePeer")
             console.log(payload)
         });
 
+        socketRef.current.on('close', () => {
+            window.location.reload()
+        })
+
+        socketRef.current.on('rejected', () => {
+            window.location.reload()
+        })
+
         return function cleanup() {
+            window.removeEventListener("beforeunload", alertUser);
+
             var id = socketRef.current.id
             socketRef.current.emit("closing peer", { callerID: id })
 
-            if (peer != undefined) {
+            socketRef.current.disconnect()
+
+            if (peer !== undefined) {
                 peer.peer.destroy();
             }
 
             clearInterval(interval);
         }
-    }, []);
+    }, [roomID, resolutionID]);
 
     function sendTicker() {
         var id = socketRef.current.id
@@ -202,19 +225,32 @@ const Viewer = (props) => {
     function showvideo() {
         console.log("showvideo ")
         var videos = ''
-        if (peer != undefined) {
-            console.log(peer)
-            videos = <Video key={1} peer={peer} resolutionID={resolutionID} />
+        var link = '/'
+
+        if(!showVideo){
+            return <Redirect to={link}  />
         }
+
+        if (peer !== undefined) {
+            videos = <Video key={1001} peer={peer} resolutionID={resolutionID} />
+        }
+
         return videos;
+    }
+
+    function buttonSetoff() {
+        setVideo(false)
+       
     }
 
     return (
         <div>
             <Container>
+            <Button onClick={buttonSetoff}>Off</Button>
                 {spinner()}
                 {message()}
                 {showvideo()}
+                
             </Container>
         </div>
 
