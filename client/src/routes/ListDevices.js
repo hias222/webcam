@@ -56,7 +56,7 @@ const ListDevices = (props) => {
     const socketRef = useRef();
 
     var constraints = {
-        video: { width: 300 },
+        video: true,
         audio: true
     };
 
@@ -164,7 +164,7 @@ const ListDevices = (props) => {
             let stream = null;
             try {
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
-                console.log(stream.getAudioTracks()[0].getCapabilities()) ;
+                console.log(stream.getAudioTracks()[0].getCapabilities());
                 localVideoref.current.srcObject = stream;
                 localVideoref.current.muted = true;
             } catch (err) {
@@ -188,9 +188,7 @@ const ListDevices = (props) => {
                     <Grid item xs={12}>
                         <Paper className={classes.paper}>Stream Camera - Chack Access tom camera and mic devices in browser </Paper>
                     </Grid>
-                    <Grid item xs={12}>
-                        <video ref={localVideoref} autoPlay ></video>
-                    </Grid>
+
 
                     <Grid item xs={2}>
                         <FormControl className={classes.formControl1}>
@@ -325,9 +323,11 @@ const ListDevices = (props) => {
                     <Grid item xs={8} key={6003}>
                         <Paper></Paper>
                     </Grid>
-
                 </Grid>
             </Paper>
+            <Grid >
+                <video ref={localVideoref} autoPlay ></video>
+            </Grid>
         </div>
     );
 };
