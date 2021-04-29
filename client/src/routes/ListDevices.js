@@ -55,6 +55,13 @@ const ListDevices = (props) => {
     const history = useHistory();
     const socketRef = useRef();
 
+    var constraints = {
+        video: { width: 300 },
+        audio: true
+    };
+
+    var localVideoref = useRef(null);
+
     // for selects
     const [cameraConfig, setCameraConfig] = React.useState({ 'video': '', "audio": '', "room": '', "resolution": '720' });
     const [viewConfig, setViewConfig] = React.useState('');
@@ -153,6 +160,21 @@ const ListDevices = (props) => {
             setRooms(viewrooms)
         })
 
+        async function getMedia(constraints) {
+            let stream = null;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                console.log(stream.getAudioTracks()[0].getCapabilities()) ;
+                localVideoref.current.srcObject = stream;
+                localVideoref.current.muted = true;
+            } catch (err) {
+                /* handle the error */
+                console.log(err);
+            }
+        }
+
+        getMedia(constraints);
+
         return function cleanup() {
             console.log("cleanup todo ")
         }
@@ -165,6 +187,9 @@ const ListDevices = (props) => {
                 <Grid container spacing={2} key={6000} >
                     <Grid item xs={12}>
                         <Paper className={classes.paper}>Stream Camera - Chack Access tom camera and mic devices in browser </Paper>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <video ref={localVideoref} autoPlay ></video>
                     </Grid>
 
                     <Grid item xs={2}>

@@ -5,18 +5,12 @@ import styled from "styled-components";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { Redirect } from 'react-router-dom'
-import { red } from "@material-ui/core/colors";
-import { Button } from "@material-ui/core";
 
 //https://github.com/Dirvann/webrtc-video-conference-simple-peer/blob/master/src/socketController.js
 
 const Container = styled.div`
     padding: 0px;
     margin: 0px;
-`;
-
-const StyledVideo = styled.video`
-    height: 100%; 
 `;
 
 const StyledVideo720 = styled.video`
@@ -79,7 +73,7 @@ const Video = (props) => {
                 return < StyledVideo575 playsInline autoPlay ref={ref} />
             default:
                 console.log('resolution default')
-                return < StyledVideo playsInline autoPlay ref={ref} />
+                return <div><video playsInline autoPlay ref={ref} /></div>
         }
     }
 
@@ -246,7 +240,7 @@ const Viewer = (props) => {
     return (
         <div>
             <Container>
-            <Button onClick={buttonSetoff}>Off</Button>
+            
                 {spinner()}
                 {message()}
                 {showvideo()}
