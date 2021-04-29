@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 
 import io from "socket.io-client";
 
+import Start from './Start'
+
 import { useHistory } from "react-router-dom";
 import { Button, Grid } from "@material-ui/core";
 
@@ -64,8 +66,7 @@ const ListDevices = (props) => {
 
     // for selects
     const [cameraConfig, setCameraConfig] = React.useState({ 'video': '', "audio": '', "room": '', "resolution": '720' });
-    const [viewConfig, setViewConfig] = React.useState('');
-
+    
     function create(cameraID) {
         history.push(`/room/${cameraConfig.video}`);
     }
@@ -76,10 +77,6 @@ const ListDevices = (props) => {
         } else {
             history.push(`/stream/${cameraConfig.room}/${cameraConfig.video}/${cameraConfig.audio}/${cameraConfig.resolution}`);
         }
-    }
-
-    function view() {
-        history.push(`/view/${cameraConfig.room}/${cameraConfig.resolution}`);
     }
 
     const handleChangeVideo = (event) => {
@@ -107,14 +104,6 @@ const ListDevices = (props) => {
         const name = event.target.value;
         var temp = { ...cameraConfig, 'room': name }
         setCameraConfig(temp)
-        console.log(temp)
-    };
-
-    const handleViewRoom = (event) => {
-        const name = event.target.value;
-        var temp = { ...cameraConfig, 'room': name }
-        setCameraConfig(temp)
-        setViewConfig(name)
         console.log(temp)
     };
 
@@ -184,7 +173,10 @@ const ListDevices = (props) => {
     return (
         <div className={classes.root}>
             <Paper className={classes.paper2}>
+
                 <Grid container spacing={2} key={6000} >
+                <Start></Start>
+
                     <Grid item xs={12}>
                         <Paper className={classes.paper}>Stream Camera - Chack Access tom camera and mic devices in browser </Paper>
                     </Grid>
@@ -270,54 +262,6 @@ const ListDevices = (props) => {
 
                     <Grid item xs={2} key={6001}>
                         <Button onClick={() => { create() }} >Room</Button>
-                    </Grid>
-
-                    <Grid item xs={8} key={6002}>
-                        <Paper></Paper>
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <Paper className={classes.paper}>View Camera </Paper>
-                    </Grid>
-
-                    <Grid item xs={6}>
-                        <FormControl className={classes.formControl}>
-                            <InputLabel htmlFor="room-native-simple">Camera</InputLabel>
-
-                            <Select enabled={loading}
-                                labelId="room-native-simple"
-                                id="room-native-simple"
-                                displayEmpty
-                                value={viewConfig}
-                                onChange={handleViewRoom}
-                            >
-                                {rooms.map((room, index) => {
-                                    return (
-                                        <MenuItem key={index + 4200} value={room}>{room}</MenuItem>
-                                    );
-                                })}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-
-                    <Grid item xs={6}>
-                        <FormControl className={classes.formControl1}>
-                            <InputLabel htmlFor="room-native-simple">Resolution</InputLabel>
-                            <Select enabled={loading}
-                                value={cameraConfig.resolution}
-                                onChange={handleChangeResolution}
-                                displayEmpty
-                            >
-                                <MenuItem key={5501} value={'720'}>720p</MenuItem>
-                                <MenuItem key={5502} value={'1080'}>1080p</MenuItem>
-                                <MenuItem key={5503} value={'575'}>575p</MenuItem>
-                                <MenuItem key={5504} value={'0'}>nothing</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Grid>
-
-                    <Grid item xs={4}>
-                        <Button onClick={() => { view() }} >Play</Button>
                     </Grid>
 
                     <Grid item xs={8} key={6003}>
